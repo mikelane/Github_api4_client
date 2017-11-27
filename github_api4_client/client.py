@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""A client that queries Github's API v4"""
+
+# Imports
+import configparser
+
+__author__ = "Michael Lane"
+__email__ = "mikelane@gmail.com"
+__copyright__ = "Copyright 2017, Michael Lane"
+__license__ = "MIT"
+
+if __name__ == '__main__':
+    pass
