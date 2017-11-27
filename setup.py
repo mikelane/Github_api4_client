@@ -1,5 +1,6 @@
-from setuptools import setup, find_packages
 from os import path
+
+from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
 
@@ -33,9 +34,11 @@ setup(
 
     keywords='github, graphql, graphene, api',
     install_requires=[
-        'configparser'
+        'configparser',
+        'requests'
     ],
     setup_requires=[
-        'configparser'
+        'configparser',
+        'requests'
     ]
 )
