@@ -1,0 +1,38 @@
+{
+    repository(owner: "ramda", name: "ramda") {
+        pullRequests(last:100) {
+            edges {
+                node {
+                    number
+                    title
+                    author {
+                        login
+                    }
+                    state
+                    createdAt
+                    lastEditedAt
+                    mergeable
+                    merged
+                    mergedAt
+                    url
+                    revertUrl
+                    comments(last:100) {
+                        edges {
+                            node {
+                                author {
+                                    login
+                                }
+                                bodyText
+                                createdAt
+                                lastEditedAt
+                                editor {
+                                    login
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
