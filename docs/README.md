@@ -16,17 +16,11 @@ how to set up your `settings.ini` file.
 
 ### Usage
 
-The script opens a file that contains the json objects to return portion of the query 
-([See the documentation](https://developer.github.com/v4/guides/forming-calls/#about-query-and-mutation-operations)), 
-reads the file in and makes the query. To run the script, do the following from the projet root:
+The script runs a pre-defined example query. To run the script, do the following from the projet root:
 
-    ./github_query <filename>
-
-For example:
-
-    ./github_query queries/ramda_pull_requests.query
-
-To run the tests, use this command:
+    ./github_query
+    
+At the moment, in-depth introspection of the results requires the use of a debugger. To run the tests, use this command:
 
     python3 -m unittests -v github_api4_client/tests/*.py
     
