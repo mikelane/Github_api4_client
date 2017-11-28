@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import argparse
 import collections
 import configparser
 
@@ -15,11 +14,6 @@ __email__ = "mikelane@gmail.com"
 __copyright__ = "Copyright 2017, Michael Lane"
 __license__ = "MIT"
 
-parser = argparse.ArgumentParser(description='''This script allows you to query Github's GraphQL API and to
-introspect the result.''')
-parser.add_argument('query', help='The filename of the query.')
-args = parser.parse_args()
-
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     with open(definitions.SETTINGS_PATH, 'r') as settings_file:
@@ -28,6 +22,7 @@ if __name__ == '__main__':
 
     client = Client(token)
 
+    # Get the first 100 pull requests
     query = '''
 {
     repository(owner: "ramda", name: "ramda") {
@@ -48,14 +43,16 @@ if __name__ == '__main__':
 }'''
 
     response = client.query(query).json()
-    collected_responses = [response]
+
     edges = response['data']['repository']['pullRequests']['edges']
+
     data = collections.defaultdict(int)
     for edge in edges:
         date = pd.to_datetime(edge['node']['mergedAt'])
         if date:
             data[(date.year, date.week)] += 1
 
+    # Get all the remaining pull requests
     while response['data']['repository']['pullRequests']['pageInfo']['hasNextPage']:
         cursor = response['data']['repository']['pullRequests']['pageInfo']['endCursor']
         query = f'''
@@ -78,7 +75,6 @@ if __name__ == '__main__':
 }}
 '''
         response = client.query(query).json()
-        collected_responses.append(response)
         edges = response['data']['repository']['pullRequests']['edges']
 
         for edge in edges:
@@ -86,6 +82,7 @@ if __name__ == '__main__':
             if date:
                 data[(date.year, date.week)] += 1
 
+    # Convert data to a pandas dataframe for convenience
     dataframe = pd.DataFrame(data, index=['number of pull requests'])
 
-    print(f'There were a total of {len(collected_responses)} queries.')
+    print(dataframe)
