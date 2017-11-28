@@ -35,10 +35,12 @@ setup(
     keywords='github, graphql, graphene, api',
     install_requires=[
         'configparser',
-        'requests'
+        'requests',
+        'pandas'
     ],
     setup_requires=[
         'configparser',
-        'requests'
+        'requests',
+        'pandas'
     ]
 )

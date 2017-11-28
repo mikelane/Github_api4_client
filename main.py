@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import collections
 import configparser
-from pprint import pprint
+
+import pandas as pd
 
 import definitions
 from github_api4_client.client import Client
@@ -26,9 +28,64 @@ if __name__ == '__main__':
 
     client = Client(token)
 
-    with open(args.query, 'r') as query_file:
-        query = query_file.read()
+    query = '''
+{
+    repository(owner: "ramda", name: "ramda") {
+        pullRequests(first: 100) {
+            edges {
+                node {
+                    number
+                    mergedAt
+                }
+                cursor
+            }
+            pageInfo {
+                hasNextPage
+                endCursor
+            }
+        }
+    }
+}'''
 
-    response = client.query(query)
-    response_json = response.json()
-    pprint(response_json, compact=True)
+    response = client.query(query).json()
+    collected_responses = [response]
+    edges = response['data']['repository']['pullRequests']['edges']
+    data = collections.defaultdict(int)
+    for edge in edges:
+        date = pd.to_datetime(edge['node']['mergedAt'])
+        if date:
+            data[(date.year, date.week)] += 1
+
+    while response['data']['repository']['pullRequests']['pageInfo']['hasNextPage']:
+        cursor = response['data']['repository']['pullRequests']['pageInfo']['endCursor']
+        query = f'''
+{{
+    repository(owner: "ramda", name: "ramda") {{
+        pullRequests(first: 100, after: "{cursor}") {{
+            edges {{
+                node {{
+                    number
+                    mergedAt
+                }}
+                cursor
+            }}
+            pageInfo {{
+                hasNextPage
+                endCursor
+            }}
+        }}
+    }}
+}}
+'''
+        response = client.query(query).json()
+        collected_responses.append(response)
+        edges = response['data']['repository']['pullRequests']['edges']
+
+        for edge in edges:
+            date = pd.to_datetime(edge['node']['mergedAt'])
+            if date:
+                data[(date.year, date.week)] += 1
+
+    dataframe = pd.DataFrame(data, index=['number of pull requests'])
+
+    print(f'There were a total of {len(collected_responses)} queries.')
